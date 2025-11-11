@@ -1,15 +1,27 @@
 package controlador;
 
-import modelo.sistema.SistemaCMS;
-import modelo.usuarios.Usuario;
-
+/**
+ * Controlador liviano para que la Vista pueda
+ * establecer/consultar permisos del usuario actual.
+ * Si luego agregan clases Usuario/Admin/Editor, aquí se integran.
+ */
 public class ControladorUsuario {
-    private final SistemaCMS sistema;
-    private Usuario usuarioActual; // opcional por ahora
 
-    public ControladorUsuario(SistemaCMS sistema) {
-        this.sistema = sistema;
+    private boolean esAdmin;
+
+    public ControladorUsuario() {
+        this.esAdmin = false;
     }
 
-    public Usuario getUsuarioActual() { return usuarioActual; }
+    public void iniciarSesionComoAdmin() {
+        this.esAdmin = true;
+    }
+
+    public void iniciarSesionComoEditor() {
+        this.esAdmin = false;
+    }
+
+    public boolean esAdmin() {
+        return esAdmin;
+    }
 }

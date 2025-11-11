@@ -6,13 +6,16 @@ import vista.VistaJavaFX;
 import controlador.ControladorContenido;
 import controlador.ControladorUsuario;
 import modelo.sistema.SistemaCMS;
+import modelo.repositorio.RepositorioContenido;
 
 public class Main extends Application {
     @Override
     public void start(Stage stage) {
-        SistemaCMS sistema = new SistemaCMS();
+        RepositorioContenido repo = new RepositorioContenido();
+        SistemaCMS sistema = new SistemaCMS(repo);
+
         ControladorContenido cCont = new ControladorContenido(sistema);
-        ControladorUsuario cUser = new ControladorUsuario(sistema);
+        ControladorUsuario cUser = new ControladorUsuario();
 
         VistaJavaFX vista = new VistaJavaFX();
         vista.setControladores(cCont, cUser);
@@ -22,7 +25,5 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 }

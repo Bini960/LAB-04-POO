@@ -1,5 +1,8 @@
 package modelo.reporte;
 
-public class IReportable {
-    
+import java.util.ArrayList;
+import modelo.contenidos.Contenido;
+
+public interface IReportable {
+    String generar(ArrayList<Contenido> contenidos);
 }

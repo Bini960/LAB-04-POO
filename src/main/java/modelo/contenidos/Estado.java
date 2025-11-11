@@ -1,5 +1,5 @@
 package modelo.contenidos;
 
-public class Estado {
-    
+public enum Estado {
+    BORRADOR, PUBLICADO
 }

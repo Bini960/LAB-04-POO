@@ -1,5 +1,6 @@
 package modelo.interfaces;
 
-public class IPublicable {
-    
+public interface IPublicable {
+    void publicar();
+    void despublicar();
 }
