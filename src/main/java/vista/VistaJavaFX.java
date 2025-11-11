@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 
 import javafx.stage.Modality;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class VistaJavaFX {
     private ControladorContenido cCont;
@@ -211,9 +212,9 @@ public class VistaJavaFX {
         btnNuevaImagen.setStyle(estiloBtnCrear);
         
         // Eventos de creación (temporales)
-        btnNuevoArticulo.setOnAction(e -> mostrarMensaje("Crear nuevo artículo"));
-        btnNuevoVideo.setOnAction(e -> mostrarMensaje("Crear nuevo video"));
-        btnNuevaImagen.setOnAction(e -> mostrarMensaje("Crear nueva imagen"));
+        btnNuevoArticulo.setOnAction(e -> abrirModalCrearArticulo());
+        btnNuevoVideo.setOnAction(e -> abrirModalCrearVideo());
+        btnNuevaImagen.setOnAction(e -> abrirModalCrearImagen());
         
         barra.getChildren().addAll(
             lblCMS,
@@ -304,7 +305,7 @@ public class VistaJavaFX {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-    
+
     private void actualizarVistaUsuario() {
         if (cUser.esAdmin()) {
             lblTipoUsuario.setText("ADMIN");
@@ -313,5 +314,287 @@ public class VistaJavaFX {
             lblTipoUsuario.setText("EDITOR");
             lblTipoUsuario.setStyle("-fx-text-fill: #7f8c8d;");
         }
+    }
+    
+    private void abrirModalCrearArticulo() {
+        Stage modal = new Stage();
+        modal.initModality(Modality.APPLICATION_MODAL);
+        modal.setTitle("Crear Nuevo Artículo");
+        
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        
+        Label lblTitulo = new Label("Nuevo Artículo");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        
+        // Campos del formulario
+        TextField txtTitulo = new TextField();
+        txtTitulo.setPromptText("Título del artículo");
+        
+        TextArea txtCuerpo = new TextArea();
+        txtCuerpo.setPromptText("Contenido del artículo");
+        txtCuerpo.setPrefRowCount(5);
+        
+        TextField txtCategoria = new TextField();
+        txtCategoria.setPromptText("Categoría (ej: Tecnología)");
+        
+        TextField txtEtiquetas = new TextField();
+        txtEtiquetas.setPromptText("Etiquetas separadas por comas");
+        
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button btnGuardar = new Button("Guardar");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        btnGuardar.setOnAction(e -> {
+            try {
+                String titulo = txtTitulo.getText().trim();
+                String cuerpo = txtCuerpo.getText().trim();
+                String categoria = txtCategoria.getText().trim();
+                String etiquetasStr = txtEtiquetas.getText().trim();
+                
+                if (titulo.isEmpty() || cuerpo.isEmpty()) {
+                    mostrarError("El título y el cuerpo son obligatorios");
+                    return;
+                }
+                
+                ArrayList<String> etiquetas = new ArrayList<>();
+                if (!etiquetasStr.isEmpty()) {
+                    String[] etiqArray = etiquetasStr.split(",");
+                    for (String etiq : etiqArray) {
+                        etiquetas.add(etiq.trim());
+                    }
+                }
+                
+                String fecha = LocalDate.now().toString();
+                int id = cCont.crearArticulo(titulo, cuerpo, 1, fecha, etiquetas, categoria);
+                
+                mostrarMensaje("Artículo creado exitosamente con ID: " + id);
+                cargarContenidos();
+                modal.close();
+            } catch (Exception ex) {
+                mostrarError("Error al crear artículo: " + ex.getMessage());
+            }
+        });
+        
+        btnCancelar.setOnAction(e -> modal.close());
+        
+        botones.getChildren().addAll(btnCancelar, btnGuardar);
+        
+        layout.getChildren().addAll(
+            lblTitulo,
+            new Label("Título:"), txtTitulo,
+            new Label("Contenido:"), txtCuerpo,
+            new Label("Categoría:"), txtCategoria,
+            new Label("Etiquetas:"), txtEtiquetas,
+            botones
+        );
+        
+        Scene scene = new Scene(layout, 500, 450);
+        modal.setScene(scene);
+        modal.showAndWait();
+    }
+    
+    private void abrirModalCrearVideo() {
+        Stage modal = new Stage();
+        modal.initModality(Modality.APPLICATION_MODAL);
+        modal.setTitle("Crear Nuevo Video");
+        
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        
+        Label lblTitulo = new Label("Nuevo Video");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        
+        // Campos del formulario
+        TextField txtTitulo = new TextField();
+        txtTitulo.setPromptText("Título del video");
+        
+        TextField txtUrl = new TextField();
+        txtUrl.setPromptText("URL del video");
+        
+        TextField txtDuracion = new TextField();
+        txtDuracion.setPromptText("Duración en segundos");
+        
+        TextField txtCategoria = new TextField();
+        txtCategoria.setPromptText("Categoría (ej: Educación)");
+        
+        TextField txtEtiquetas = new TextField();
+        txtEtiquetas.setPromptText("Etiquetas separadas por comas");
+        
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button btnGuardar = new Button("Guardar");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        btnGuardar.setOnAction(e -> {
+            try {
+                String titulo = txtTitulo.getText().trim();
+                String url = txtUrl.getText().trim();
+                String duracionStr = txtDuracion.getText().trim();
+                String categoria = txtCategoria.getText().trim();
+                String etiquetasStr = txtEtiquetas.getText().trim();
+                
+                if (titulo.isEmpty() || url.isEmpty() || duracionStr.isEmpty()) {
+                    mostrarError("El título, URL y duración son obligatorios");
+                    return;
+                }
+                
+                int duracion = Integer.parseInt(duracionStr);
+                
+                ArrayList<String> etiquetas = new ArrayList<>();
+                if (!etiquetasStr.isEmpty()) {
+                    String[] etiqArray = etiquetasStr.split(",");
+                    for (String etiq : etiqArray) {
+                        etiquetas.add(etiq.trim());
+                    }
+                }
+                
+                String fecha = LocalDate.now().toString();
+                int id = cCont.crearVideo(titulo, url, duracion, 1, fecha, etiquetas, categoria);
+                
+                mostrarMensaje("Video creado exitosamente con ID: " + id);
+                cargarContenidos();
+                modal.close();
+            } catch (NumberFormatException ex) {
+                mostrarError("La duración debe ser un número válido");
+            } catch (Exception ex) {
+                mostrarError("Error al crear video: " + ex.getMessage());
+            }
+        });
+        
+        btnCancelar.setOnAction(e -> modal.close());
+        
+        botones.getChildren().addAll(btnCancelar, btnGuardar);
+        
+        layout.getChildren().addAll(
+            lblTitulo,
+            new Label("Título:"), txtTitulo,
+            new Label("URL:"), txtUrl,
+            new Label("Duración (segundos):"), txtDuracion,
+            new Label("Categoría:"), txtCategoria,
+            new Label("Etiquetas:"), txtEtiquetas,
+            botones
+        );
+        
+        Scene scene = new Scene(layout, 500, 400);
+        modal.setScene(scene);
+        modal.showAndWait();
+    }
+    
+    private void abrirModalCrearImagen() {
+        Stage modal = new Stage();
+        modal.initModality(Modality.APPLICATION_MODAL);
+        modal.setTitle("Crear Nueva Imagen");
+        
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        
+        Label lblTitulo = new Label("Nueva Imagen");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        
+        // Campos del formulario
+        TextField txtTitulo = new TextField();
+        txtTitulo.setPromptText("Título de la imagen");
+        
+        TextField txtUrl = new TextField();
+        txtUrl.setPromptText("URL de la imagen");
+        
+        TextField txtAncho = new TextField();
+        txtAncho.setPromptText("Ancho en píxeles");
+        
+        TextField txtAlto = new TextField();
+        txtAlto.setPromptText("Alto en píxeles");
+        
+        TextField txtCategoria = new TextField();
+        txtCategoria.setPromptText("Categoría (ej: Arte)");
+        
+        TextField txtEtiquetas = new TextField();
+        txtEtiquetas.setPromptText("Etiquetas separadas por comas");
+        
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button btnGuardar = new Button("Guardar");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20;");
+        
+        btnGuardar.setOnAction(e -> {
+            try {
+                String titulo = txtTitulo.getText().trim();
+                String url = txtUrl.getText().trim();
+                String anchoStr = txtAncho.getText().trim();
+                String altoStr = txtAlto.getText().trim();
+                String categoria = txtCategoria.getText().trim();
+                String etiquetasStr = txtEtiquetas.getText().trim();
+                
+                if (titulo.isEmpty() || url.isEmpty() || anchoStr.isEmpty() || altoStr.isEmpty()) {
+                    mostrarError("Todos los campos principales son obligatorios");
+                    return;
+                }
+                
+                int ancho = Integer.parseInt(anchoStr);
+                int alto = Integer.parseInt(altoStr);
+                
+                ArrayList<String> etiquetas = new ArrayList<>();
+                if (!etiquetasStr.isEmpty()) {
+                    String[] etiqArray = etiquetasStr.split(",");
+                    for (String etiq : etiqArray) {
+                        etiquetas.add(etiq.trim());
+                    }
+                }
+                
+                String fecha = LocalDate.now().toString();
+                int id = cCont.crearImagen(titulo, url, ancho, alto, 1, fecha, etiquetas, categoria);
+                
+                mostrarMensaje("Imagen creada exitosamente con ID: " + id);
+                cargarContenidos();
+                modal.close();
+            } catch (NumberFormatException ex) {
+                mostrarError("El ancho y alto deben ser números válidos");
+            } catch (Exception ex) {
+                mostrarError("Error al crear imagen: " + ex.getMessage());
+            }
+        });
+        
+        btnCancelar.setOnAction(e -> modal.close());
+        
+        botones.getChildren().addAll(btnCancelar, btnGuardar);
+        
+        layout.getChildren().addAll(
+            lblTitulo,
+            new Label("Título:"), txtTitulo,
+            new Label("URL:"), txtUrl,
+            new Label("Ancho (px):"), txtAncho,
+            new Label("Alto (px):"), txtAlto,
+            new Label("Categoría:"), txtCategoria,
+            new Label("Etiquetas:"), txtEtiquetas,
+            botones
+        );
+        
+        Scene scene = new Scene(layout, 500, 450);
+        modal.setScene(scene);
+        modal.showAndWait();
+    }
+    
+    private void mostrarError(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }
