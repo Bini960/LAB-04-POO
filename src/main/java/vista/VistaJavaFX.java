@@ -28,6 +28,10 @@ public class VistaJavaFX {
         this.cUser = cUser;
     }
 
+    // Componentes de búsqueda
+    private ComboBox<String> cmbFiltroCategoria;
+    private TextField txtBusqueda;
+
     public void initUI(Stage stage) {
         this.stage = stage;
         
@@ -36,6 +40,14 @@ public class VistaJavaFX {
         
         // Crear menú lateral
         crearMenuLateral();
+        
+        // Crear barra superior
+        VBox topSection = new VBox(10);
+        topSection.setPadding(new Insets(15));
+        topSection.setStyle("-fx-background-color: white;");
+        
+        HBox barraSuperior = crearBarraSuperior();
+        topSection.getChildren().add(barraSuperior);
         
         // Crear contenido principal
         contenidoPrincipal = new VBox(20);
@@ -47,12 +59,78 @@ public class VistaJavaFX {
         contenidoPrincipal.getChildren().add(lblBienvenida);
         
         // Ensamblar
+        root.setTop(topSection);
         root.setLeft(menuLateral);
         root.setCenter(contenidoPrincipal);
         
         Scene scene = new Scene(root, 1000, 600);
         stage.setScene(scene);
         stage.setTitle("CMS - Sistema de Gestión de Contenidos");
+    }
+
+    private HBox crearBarraSuperior() {
+        HBox barra = new HBox(15);
+        barra.setAlignment(Pos.CENTER_LEFT);
+        barra.setPadding(new Insets(10));
+        
+        // Título CMS
+        Label lblCMS = new Label("CMS");
+        lblCMS.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        
+        // Separador flexible
+        Region spacer1 = new Region();
+        HBox.setHgrow(spacer1, Priority.ALWAYS);
+        
+        // ComboBox de filtro
+        cmbFiltroCategoria = new ComboBox<>();
+        cmbFiltroCategoria.getItems().addAll("ALL", "Tecnología", "Ciencia", "Arte", "Educación", "Deportes");
+        cmbFiltroCategoria.setValue("ALL");
+        cmbFiltroCategoria.setPrefWidth(150);
+        cmbFiltroCategoria.setStyle("-fx-font-size: 14px;");
+        
+        // Botón buscar
+        Button btnBuscar = new Button("Buscar");
+        btnBuscar.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; " +
+                          "-fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        btnBuscar.setOnAction(e -> buscarContenidos());
+        
+        // Separador
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+        
+        // Botones de creación
+        Button btnNuevoArticulo = new Button("Nuevo Artículo");
+        Button btnNuevoVideo = new Button("Nuevo Video");
+        Button btnNuevaImagen = new Button("Nueva Imagen");
+        
+        String estiloBtnCrear = "-fx-background-color: #5dade2; -fx-text-fill: white; -fx-font-size: 13px; " +
+                               "-fx-padding: 8 15 8 15; -fx-cursor: hand;";
+        btnNuevoArticulo.setStyle(estiloBtnCrear);
+        btnNuevoVideo.setStyle(estiloBtnCrear);
+        btnNuevaImagen.setStyle(estiloBtnCrear);
+        
+        // Eventos de creación (temporales)
+        btnNuevoArticulo.setOnAction(e -> mostrarMensaje("Crear nuevo artículo"));
+        btnNuevoVideo.setOnAction(e -> mostrarMensaje("Crear nuevo video"));
+        btnNuevaImagen.setOnAction(e -> mostrarMensaje("Crear nueva imagen"));
+        
+        barra.getChildren().addAll(
+            lblCMS,
+            spacer1,
+            cmbFiltroCategoria,
+            btnBuscar,
+            spacer2,
+            btnNuevoArticulo,
+            btnNuevoVideo,
+            btnNuevaImagen
+        );
+        
+        return barra;
+    }
+
+    private void buscarContenidos() {
+        String categoriaSeleccionada = cmbFiltroCategoria.getValue();
+        mostrarMensaje("Buscando en categoría: " + categoriaSeleccionada);
     }
 
     private void crearMenuLateral() {
