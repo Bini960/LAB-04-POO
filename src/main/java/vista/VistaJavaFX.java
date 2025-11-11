@@ -11,6 +11,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+import modelo.contenidos.*;
+import java.util.ArrayList;
+
 public class VistaJavaFX {
     private ControladorContenido cCont;
     private ControladorUsuario cUser;
@@ -203,7 +206,7 @@ public class VistaJavaFX {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-    
+
     private void actualizarVistaUsuario() {
         if (cUser.esAdmin()) {
             lblTipoUsuario.setText("ADMIN");
