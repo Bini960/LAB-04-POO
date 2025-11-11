@@ -10,11 +10,11 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
 import javafx.stage.Modality;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
+import javafx.scene.control.ButtonType;
+import modelo.contenidos.*;
 public class VistaJavaFX {
     private ControladorContenido cCont;
     private ControladorUsuario cUser;
@@ -68,6 +68,10 @@ public class VistaJavaFX {
         Scene scene = new Scene(root, 1000, 600);
         stage.setScene(scene);
         stage.setTitle("CMS - Sistema de Gestión de Contenidos");
+        
+        // Sincronizar permisos
+        cCont.setEsAdminActual(cUser.esAdmin());
+        actualizarVistaUsuario();
         
         // Cargar contenidos iniciales
         cargarContenidos();
@@ -165,7 +169,90 @@ public class VistaJavaFX {
         
         headerCard.getChildren().addAll(lblIcono, infoContenido, spacer, categoriaBox);
         
-        card.getChildren().add(headerCard);
+        HBox botonesAccion = new HBox(10);
+        botonesAccion.setAlignment(Pos.CENTER_RIGHT);
+        botonesAccion.setPadding(new Insets(10, 0, 0, 0));
+        
+        // Estado del contenido
+        Label lblEstado = new Label("Estado: " + contenido.getEstado());
+        lblEstado.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        if (contenido.getEstado() == Estado.PUBLICADO) {
+            lblEstado.setStyle("-fx-text-fill: #27ae60;");
+        } else {
+            lblEstado.setStyle("-fx-text-fill: #e67e22;");
+        }
+        
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+        
+        // Botón Publicar/Despublicar
+        Button btnPublicar = new Button(
+            contenido.getEstado() == Estado.PUBLICADO ? "Despublicar" : "Publicar"
+        );
+        
+        if (contenido.getEstado() == Estado.PUBLICADO) {
+            btnPublicar.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-padding: 5 15;");
+        } else {
+            btnPublicar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 5 15;");
+        }
+        
+        btnPublicar.setOnAction(e -> {
+            if (!cUser.esAdmin()) {
+                mostrarError("Solo los administradores pueden publicar/despublicar contenidos");
+                return;
+            }
+            
+            boolean exito;
+            if (contenido.getEstado() == Estado.PUBLICADO) {
+                exito = cCont.despublicar(contenido.getId());
+            } else {
+                exito = cCont.publicar(contenido.getId());
+            }
+            
+            if (exito) {
+                mostrarMensaje("Operación realizada exitosamente");
+                cargarContenidos();
+            } else {
+                mostrarError("No se pudo realizar la operación");
+            }
+        });
+        
+        // Botón Eliminar
+        Button btnEliminar = new Button("Eliminar");
+        btnEliminar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 5 15;");
+        
+        btnEliminar.setOnAction(e -> {
+            if (!cUser.esAdmin()) {
+                mostrarError("Solo los administradores pueden eliminar contenidos");
+                return;
+            }
+            
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Confirmar eliminación");
+            confirmacion.setHeaderText("¿Está seguro de eliminar este contenido?");
+            confirmacion.setContentText("Esta acción no se puede deshacer");
+            
+            confirmacion.showAndWait().ifPresent(respuesta -> {
+                if (respuesta == ButtonType.OK) {
+                    boolean exito = cCont.eliminar(contenido.getId());
+                    if (exito) {
+                        mostrarMensaje("Contenido eliminado exitosamente");
+                        cargarContenidos();
+                    } else {
+                        mostrarError("No se pudo eliminar el contenido");
+                    }
+                }
+            });
+        });
+        
+        // Solo mostrar botones si hay permisos
+        if (cUser.esAdmin()) {
+            botonesAccion.getChildren().addAll(lblEstado, spacer2, btnPublicar, btnEliminar);
+        } else {
+            botonesAccion.getChildren().addAll(lblEstado, spacer2);
+        }
+        
+        card.getChildren().addAll(headerCard, botonesAccion);
         
         return card;
     }
@@ -232,7 +319,32 @@ public class VistaJavaFX {
 
     private void buscarContenidos() {
         String categoriaSeleccionada = cmbFiltroCategoria.getValue();
-        mostrarMensaje("Buscando en categoría: " + categoriaSeleccionada);
+        
+        listaContenidos.getChildren().clear();
+        ArrayList<Contenido> contenidos = cCont.listarTodos();
+        
+        // Filtrar por categoría si no es "ALL"
+        ArrayList<Contenido> filtrados = new ArrayList<>();
+        for (Contenido c : contenidos) {
+            if (categoriaSeleccionada.equals("ALL") || 
+                (c.getCategoria() != null && c.getCategoria().equals(categoriaSeleccionada))) {
+                filtrados.add(c);
+            }
+        }
+        
+        if (filtrados.isEmpty()) {
+            Label lblVacio = new Label("No se encontraron contenidos con los filtros seleccionados.");
+            lblVacio.setFont(Font.font("Arial", 14));
+            lblVacio.setStyle("-fx-text-fill: #7f8c8d;");
+            listaContenidos.getChildren().add(lblVacio);
+        } else {
+            for (Contenido c : filtrados) {
+                VBox card = crearCardContenido(c);
+                listaContenidos.getChildren().add(card);
+            }
+        }
+        
+        mostrarMensaje("Se encontraron " + filtrados.size() + " contenido(s)");
     }
 
     private void crearMenuLateral() {
@@ -283,7 +395,10 @@ public class VistaJavaFX {
         btnReportes.setMaxWidth(Double.MAX_VALUE);
         
         // Eventos del menú (por ahora solo mensajes)
-        btnContenido.setOnAction(e -> mostrarMensaje("Vista de Contenido"));
+        btnContenido.setOnAction(e -> {
+            cargarContenidos();
+            mostrarMensaje("Vista de Contenido actualizada");
+        });
         btnCategorias.setOnAction(e -> mostrarMensaje("Vista de Categorías (próximamente)"));
         btnReportes.setOnAction(e -> mostrarMensaje("Vista de Reportes (próximamente)"));
         
@@ -305,7 +420,7 @@ public class VistaJavaFX {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-
+    
     private void actualizarVistaUsuario() {
         if (cUser.esAdmin()) {
             lblTipoUsuario.setText("ADMIN");
