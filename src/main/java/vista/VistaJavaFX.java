@@ -11,8 +11,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import modelo.contenidos.*;
-import java.util.ArrayList;
+import javafx.stage.Modality;
+import java.time.LocalDate;
 
 public class VistaJavaFX {
     private ControladorContenido cCont;
@@ -34,6 +34,10 @@ public class VistaJavaFX {
     // Componentes de búsqueda
     private ComboBox<String> cmbFiltroCategoria;
     private TextField txtBusqueda;
+    
+    // Componentes de contenido
+    private ScrollPane scrollContenidos;
+    private VBox listaContenidos;
 
     public void initUI(Stage stage) {
         this.stage = stage;
@@ -52,23 +56,117 @@ public class VistaJavaFX {
         HBox barraSuperior = crearBarraSuperior();
         topSection.getChildren().add(barraSuperior);
         
-        // Crear contenido principal
-        contenidoPrincipal = new VBox(20);
-        contenidoPrincipal.setPadding(new Insets(20));
-        contenidoPrincipal.setStyle("-fx-background-color: #f0f0f0;");
-        
-        Label lblBienvenida = new Label("Bienvenido al Sistema CMS");
-        lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        contenidoPrincipal.getChildren().add(lblBienvenida);
+        // Crear área de contenidos
+        crearAreaContenidos();
         
         // Ensamblar
         root.setTop(topSection);
         root.setLeft(menuLateral);
-        root.setCenter(contenidoPrincipal);
+        root.setCenter(scrollContenidos);
         
         Scene scene = new Scene(root, 1000, 600);
         stage.setScene(scene);
         stage.setTitle("CMS - Sistema de Gestión de Contenidos");
+        
+        // Cargar contenidos iniciales
+        cargarContenidos();
+    }
+
+    private void crearAreaContenidos() {
+        listaContenidos = new VBox(15);
+        listaContenidos.setPadding(new Insets(20));
+        
+        scrollContenidos = new ScrollPane(listaContenidos);
+        scrollContenidos.setFitToWidth(true);
+        scrollContenidos.setStyle("-fx-background: #f0f0f0; -fx-background-color: #f0f0f0;");
+    }
+
+    private void cargarContenidos() {
+        listaContenidos.getChildren().clear();
+        ArrayList<Contenido> contenidos = cCont.listarTodos();
+        
+        if (contenidos.isEmpty()) {
+            Label lblVacio = new Label("No hay contenidos disponibles. Crea uno nuevo usando los botones superiores.");
+            lblVacio.setFont(Font.font("Arial", 14));
+            lblVacio.setStyle("-fx-text-fill: #7f8c8d;");
+            listaContenidos.getChildren().add(lblVacio);
+        } else {
+            for (Contenido contenido : contenidos) {
+                VBox card = crearCardContenido(contenido);
+                listaContenidos.getChildren().add(card);
+            }
+        }
+    }
+
+    private VBox crearCardContenido(Contenido contenido) {
+        VBox card = new VBox(10);
+        card.setPadding(new Insets(15));
+        card.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; " +
+                     "-fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
+        
+        HBox headerCard = new HBox(15);
+        headerCard.setAlignment(Pos.CENTER_LEFT);
+        
+        // Icono según tipo
+        String icono = "📄";
+        if (contenido instanceof Video) {
+            icono = "▶️";
+        } else if (contenido instanceof Imagen) {
+            icono = "🖼️";
+        }
+        
+        Label lblIcono = new Label(icono);
+        lblIcono.setFont(Font.font(30));
+        
+        // Información del contenido
+        VBox infoContenido = new VBox(5);
+        
+        Label lblTitulo = new Label(contenido.getTitulo());
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        
+        // Resumen según tipo
+        String resumen = "";
+        if (contenido instanceof Articulo) {
+            Articulo art = (Articulo) contenido;
+            String cuerpo = art.getCuerpo();
+            resumen = cuerpo != null && cuerpo.length() > 60 
+                     ? cuerpo.substring(0, 60) + "..." 
+                     : (cuerpo != null ? cuerpo : "Sin contenido");
+        } else if (contenido instanceof Video) {
+            Video vid = (Video) contenido;
+            int minutos = vid.getDuracionSeg() / 60;
+            int segundos = vid.getDuracionSeg() % 60;
+            resumen = String.format("Duración: %d:%02d | URL: %s", minutos, segundos, vid.getUrl());
+        } else if (contenido instanceof Imagen) {
+            Imagen img = (Imagen) contenido;
+            resumen = String.format("%dx%d px | URL: %s", img.getAncho(), img.getAlto(), img.getUrl());
+        }
+        
+        Label lblResumen = new Label(resumen);
+        lblResumen.setFont(Font.font("Arial", 12));
+        lblResumen.setStyle("-fx-text-fill: #7f8c8d;");
+        
+        infoContenido.getChildren().addAll(lblTitulo, lblResumen);
+        
+        // Separador
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        
+        // Categoría
+        Label lblCategoria = new Label("Categoría");
+        lblCategoria.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblCategoria.setStyle("-fx-text-fill: #2c3e50;");
+        
+        Label lblCategoriaValor = new Label(contenido.getCategoria() != null ? contenido.getCategoria() : "Sin categoría");
+        lblCategoriaValor.setFont(Font.font("Arial", 12));
+        
+        VBox categoriaBox = new VBox(3, lblCategoria, lblCategoriaValor);
+        
+        headerCard.getChildren().addAll(lblIcono, infoContenido, spacer, categoriaBox);
+        
+        card.getChildren().add(headerCard);
+        
+        return card;
     }
 
     private HBox crearBarraSuperior() {
@@ -206,7 +304,7 @@ public class VistaJavaFX {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-
+    
     private void actualizarVistaUsuario() {
         if (cUser.esAdmin()) {
             lblTipoUsuario.setText("ADMIN");
