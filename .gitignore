@@ -1,1 +1,10 @@
 *.class
+/target/
+/out/
+/bin/
+*.class
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
