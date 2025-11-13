@@ -1,9 +1,8 @@
 package controlador;
 
 /**
- * Controlador liviano para que la Vista pueda
+ * Controlador para que la Vista pueda
  * establecer/consultar permisos del usuario actual.
- * Si luego agregan clases Usuario/Admin/Editor, aquí se integran.
  */
 public class ControladorUsuario {
 

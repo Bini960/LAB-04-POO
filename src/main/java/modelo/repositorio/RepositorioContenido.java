@@ -1,6 +1,7 @@
 package modelo.repositorio;
 
 import java.util.ArrayList;
+
 import modelo.contenidos.Contenido;
 
 public class RepositorioContenido {
@@ -16,7 +17,7 @@ public class RepositorioContenido {
     }
 
     public ArrayList<Contenido> obtenerTodos() {
-        return new ArrayList<>(datos); // copia defensiva
+        return new ArrayList<>(datos);
     }
 
     public Contenido buscarPorId(int id) {

@@ -78,7 +78,7 @@ public class SistemaCMS {
         return repo.agregar(i);
     }
 
-    // ---------- Consultas ----------
+    // Consultas 
     public ArrayList<Contenido> listarTodos() {
         return repo.obtenerTodos();
     }
@@ -95,7 +95,7 @@ public class SistemaCMS {
         return repo.buscarPorId(id);
     }
 
-    // ---------- Reglas ----------
+    // Reglas 
     public boolean publicar(int id, boolean esAdmin) {
         Contenido c = repo.buscarPorId(id);
         if (c == null || !esAdmin) return false;
@@ -115,13 +115,13 @@ public class SistemaCMS {
         return repo.eliminar(id);
     }
 
-    // ---------- Reporte ----------
+    //Reporte 
     public String generarReporte(IReportable reportador) {
         ArrayList<Contenido> datos = repo.obtenerTodos();
         return reportador.generar(datos);
     }
 
-    // ---------- Helpers ----------
+    // Helpers 
     private void validarNoVacio(String s, String campo) {
         if (s == null || s.trim().isEmpty()) {
             throw new IllegalArgumentException("El campo '" + campo + "' es obligatorio");

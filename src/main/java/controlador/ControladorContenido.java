@@ -17,7 +17,9 @@ public class ControladorContenido {
         this.esAdminActual = false;
     }
 
-    public void setEsAdminActual(boolean esAdmin) { this.esAdminActual = esAdmin; }
+    public void setEsAdminActual(boolean esAdmin) { 
+        this.esAdminActual = esAdmin; 
+    }
 
     public int crearArticulo(String titulo, String cuerpo, int autorId, String fecha,
                              ArrayList<String> etiquetas, String categoria) {
@@ -34,12 +36,27 @@ public class ControladorContenido {
         return sistema.crearImagen(titulo, url, ancho, alto, autorId, fecha, etiquetas, categoria);
     }
 
-    public ArrayList<Contenido> listarTodos() { return sistema.listarTodos(); }
-    public ArrayList<Contenido> listarPorEstado(Estado e) { return sistema.listarPorEstado(e); }
+    public ArrayList<Contenido> listarTodos() { 
+        return sistema.listarTodos(); 
+    }
 
-    public boolean publicar(int id) { return sistema.publicar(id, esAdminActual); }
-    public boolean despublicar(int id) { return sistema.despublicar(id, esAdminActual); }
-    public boolean eliminar(int id) { return sistema.eliminar(id, esAdminActual); }
+    public ArrayList<Contenido> listarPorEstado(Estado e) { 
+        return sistema.listarPorEstado(e); 
+    }
 
-    public String generarReporte(IReportable reportador) { return sistema.generarReporte(reportador); }
+    public boolean publicar(int id) { 
+        return sistema.publicar(id, esAdminActual); 
+    }
+
+    public boolean despublicar(int id) { 
+        return sistema.despublicar(id, esAdminActual); 
+    }
+
+    public boolean eliminar(int id) { 
+        return sistema.eliminar(id, esAdminActual); 
+    }
+
+    public String generarReporte(IReportable reportador) { 
+        return sistema.generarReporte(reportador); 
+    }
 }

@@ -5,12 +5,27 @@ public class Imagen extends Contenido {
     private int ancho;
     private int alto;
 
-    public String getUrl() { return url; }
-    public void setUrl(String url) { this.url = url; }
+    public String getUrl() { 
+        return url; 
+    }
 
-    public int getAncho() { return ancho; }
-    public void setAncho(int ancho) { this.ancho = ancho; }
+    public void setUrl(String url) { 
+        this.url = url; 
+    }
 
-    public int getAlto() { return alto; }
-    public void setAlto(int alto) { this.alto = alto; }
+    public int getAncho() { 
+        return ancho; 
+    }
+
+    public void setAncho(int ancho) { 
+        this.ancho = ancho; 
+    }
+
+    public int getAlto() { 
+        return alto; 
+    }
+
+    public void setAlto(int alto) { 
+        this.alto = alto; 
+    }
 }
