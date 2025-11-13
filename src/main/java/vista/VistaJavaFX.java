@@ -31,6 +31,9 @@ import modelo.contenidos.Contenido;
 import modelo.contenidos.Estado;
 import modelo.contenidos.Imagen;
 import modelo.contenidos.Video;
+import modelo.reporte.ReporteTexto;
+
+
 public class VistaJavaFX {
     private ControladorContenido cCont;
     private ControladorUsuario cUser;
@@ -415,7 +418,16 @@ public class VistaJavaFX {
             cargarContenidos();
             mostrarMensaje("Vista de Contenido actualizada");
         });
-        btnCategorias.setOnAction(e -> mostrarMensaje("Vista de Categorías (próximamente)"));
+        btnCategorias.setOnAction(e -> {
+            try {
+                ReporteTexto reportador = new ReporteTexto("Contenido_reporte.txt");
+                String ruta = cCont.generarReporte(reportador);
+                mostrarMensaje("Reporte generado en: " + ruta);
+            } catch (Exception ex) {
+                mostrarError("error al generar el reporte: " + ex.getMessage());
+            }
+        });
+        
         btnReportes.setOnAction(e -> mostrarMensaje("Vista de Reportes (próximamente)"));
         
         // Ensamblar menú
