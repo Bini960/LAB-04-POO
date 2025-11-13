@@ -122,6 +122,80 @@ public class VistaJavaFX {
         }
     }
 
+    private void mostrarVistaCategorias() {
+        listaContenidos.getChildren().clear();
+
+    
+        ArrayList<Contenido> contenidos = cCont.listarTodos();
+
+        java.util.Map<String, Integer> conteo = new java.util.HashMap<>();
+
+        for (Contenido c : contenidos) {
+            String cat = c.getCategoria();
+            if (cat == null || cat.isBlank()) {
+                cat = "Sin categoría";
+            }
+            conteo.put(cat, conteo.getOrDefault(cat, 0) + 1);
+        }
+
+    
+        Label lblTitulo = new Label("Categorías disponibles");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
+        lblTitulo.setPadding(new Insets(10, 0, 20, 0));
+        listaContenidos.getChildren().add(lblTitulo);
+
+
+        // Mostrar categorías
+    for (String categoria : conteo.keySet()) {
+
+        int cantidad = conteo.get(categoria);
+
+        HBox item = new HBox(15);
+        item.setPadding(new Insets(15));
+        item.setStyle("-fx-background-color: white; -fx-border-color: #bdc3c7; "
+                    + "-fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
+        item.setAlignment(Pos.CENTER_LEFT);
+
+        Label lblCat = new Label(categoria);
+        lblCat.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+
+        Label lblCant = new Label(cantidad + " contenido(s)");
+        lblCant.setFont(Font.font("Arial", 12));
+        lblCant.setStyle("-fx-text-fill: #7f8c8d;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button btnVer = new Button("Ver");
+        btnVer.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 6 15;");
+        btnVer.setOnAction(e -> mostrarContenidosPorCategoria(categoria));
+
+        item.getChildren().addAll(lblCat, lblCant, spacer, btnVer);
+        listaContenidos.getChildren().add(item);
+        }
+    }
+
+    private void mostrarContenidosPorCategoria(String categoria) {
+        listaContenidos.getChildren().clear();
+
+        ArrayList<Contenido> contenidos = cCont.listarTodos();
+
+        Label lblTitulo = new Label("Contenido en: " + categoria);
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
+        lblTitulo.setPadding(new Insets(10, 0, 20, 0));
+        listaContenidos.getChildren().add(lblTitulo);
+
+        for (Contenido c : contenidos) {
+            String cat = (c.getCategoria() == null ? "Sin categoría" : c.getCategoria());
+            if (cat.equals(categoria)) {
+                VBox card = crearCardContenido(c);
+                listaContenidos.getChildren().add(card);
+            }
+        }
+    }
+
     private VBox crearCardContenido(Contenido contenido) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(15));
@@ -418,7 +492,9 @@ public class VistaJavaFX {
             cargarContenidos();
             mostrarMensaje("Vista de Contenido actualizada");
         });
-        btnCategorias.setOnAction(e -> {
+        btnCategorias.setOnAction(e -> mostrarVistaCategorias());
+        
+        btnReportes.setOnAction(e -> {
             try {
                 ReporteTexto reportador = new ReporteTexto("Contenido_reporte.txt");
                 String ruta = cCont.generarReporte(reportador);
@@ -427,8 +503,8 @@ public class VistaJavaFX {
                 mostrarError("error al generar el reporte: " + ex.getMessage());
             }
         });
+
         
-        btnReportes.setOnAction(e -> mostrarMensaje("Vista de Reportes (próximamente)"));
         
         // Ensamblar menú
         menuLateral.getChildren().addAll(
